@@ -5,14 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/css/bootstrap.min.css" integrity="sha384-r4NyP46KrjDleawBgD5tp8Y7UzmLA05oM1iAEQ17CSuDqnUK2+k9luXQOfXJCJ4I" crossorigin="anonymous">
+  <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
 <div class="container">
   <div class="table-responsive">
-  <table id="result_table" class="table fixed">
+  <table id="result_table" class="table table-bordered" style="table-layout:fixed;">
+  <thead id="result_thead"></thead>
+  <tbody id="result_tbody"></tbody>
   </table>
   </div>
-  
+  <div id="post_result"></div>
+  <button onClick='post()'>"1","2020-09-05","09:00:00","18:00:00"</button>
+  <form action="/posttest.php" method="post">
+    <input type="text" name="userid" value="1">
+    <input type="text" name="date" value="2020-09-05">
+    <input type="text" name="start_time" value="09:00:00">
+    <input type="text" name="end_time" value="18:00:00">
+    <input type="submit" value="送信">
+  </form>
 </div>
   <?php
     // phpinfo();
@@ -37,22 +48,27 @@
     
     try{
       $dbh = new PDO($dsn, $user, $password);
+      $dbh->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
       // echo "接続成功";
       
       $sql = 'SELECT * FROM work_time';
       $statement = $dbh -> query($sql);
-      // $work_time_array = $statement -> fetchAll(PDO::FETCH_NUM);
+      $work_time_array = $statement -> fetchAll(PDO::FETCH_NUM);
 
-      //レコード件数取得
-      $row_count = $statement->rowCount();
+      $sql = 'SELECT * FROM users';
+      $statement = $dbh -> query($sql);
+      $user_list_array = $statement -> fetchAll(PDO::FETCH_NUM);
+
+      // //レコード件数取得
+      // $row_count = $statement->rowCount();
       
-      while($row = $statement->fetch()){
-        $rows[] = $row;
-      }
+      // while($row = $statement->fetch()){
+      //   $rows[] = $row;
+      // }
       
-      foreach ($statement as $row) {
-        $rows[] = $row;
-      }
+      // foreach ($statement as $row) {
+      //   $rows[] = $row;
+      // }
       
       
       //データベース接続切断
@@ -64,40 +80,45 @@
     }
   ?>
 
-<!-- <table class="table">
-<tr><td>userid</td><td>date</td><td>start_time</td><td>end_time</td></tr>
- 
-<?php 
-foreach($rows as $row){
-?> 
-<tr> 
-	<td><?php echo htmlspecialchars($row['userid'],ENT_QUOTES,'UTF-8'); ?></td> 
-  <td><?php echo htmlspecialchars($row['date'],ENT_QUOTES,'UTF-8'); ?></td>
-	<td><?php echo htmlspecialchars($row['start_time'],ENT_QUOTES,'UTF-8'); ?></td>
-  <td><?php echo htmlspecialchars($row['end_time'],ENT_QUOTES,'UTF-8'); ?></td> 
-</tr> 
-<?php 
-} 
-?> -->
+
 <script>
-  let user_list = <?php echo '["user1","user2"];' ?>;
-  let work_time_list = <?php echo '[["user1","2020-10-01","09:00:00","18:00:00"],["user2","2020-10-01","09:00:00","14:00:00"]];' ?>;
-  console.log(user_list,work_time_list);
-  user_list.forEach(user => {
-    const table = document.getElementById("result_table");
-    const tr = document.createElement('tr');
-    tr.id = user;
-    table.appendChild(tr);
-    const td = document.createElement('td');
-    const contents = document.createTextNode(user);
-    td.appendChild(contents);
-    tr.appendChild(td);
-  });
+let user_list = [];
+let raw_user_list = (<?= json_encode($user_list_array) ?>);
+raw_user_list.forEach(e => {
+  user_list.push([e[0],e[1]]);
+});
+let work_time_list = (<?= json_encode($work_time_array) ?>);
+work_time_list.forEach(e => {
+  e.shift();
+});
+console.log(work_time_list);
+
 </script>
-
-
-
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/js/bootstrap.min.js" integrity="sha384-oesi62hOLfzrys4LxRF63OJCXdXDipiYWBnvTl9Y9/TRlw5xlKIEHpNyvvDShgf/" crossorigin="anonymous"></script>
+<script src="/js/script.js"></script>
+<script>
+  // let post_data = {userid: "1", date:"2020-09-05", start_time:"09:00:00",end_time:"18:00:00"}
+// XHRの宣言
+  function post() {
+    //console.log(post_data);
+    let post_data = "userid=1&date=2020-09-05&start_time=09:00:00&end_time=18:00:00"
+    var XHR = new XMLHttpRequest();
+    // openメソッドにPOSTを指定して送信先のURLを指定します
+    XHR.open("POST", "/post.php", true);
+    XHR.setRequestHeader( 'Content-Type', 'application/x-www-form-urlencoded;charset=UTF-8' );
+    // sendメソッドにデータを渡して送信を実行する
+    XHR.send(post_data);
 
+    // サーバの応答をonreadystatechangeイベントで検出して正常終了したらデータを取得する
+    XHR.onreadystatechange = function(){
+      if(XHR.readyState == 4 && XHR.status == 200){
+        // POST送信した結果を表示する
+        console.log("XHR OK");
+        document.getElementById("post_result").innerHTML = XHR.responseText;
+      }
+    };
+  }
+
+</script>
 </body>
 </html>

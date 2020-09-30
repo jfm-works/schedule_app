@@ -1,0 +1,15 @@
+.calendar-cell{
+  width:100px;
+}
+.calendar-head{
+  width:160px;
+}
+.calendar-head-date{
+  width:100px;
+}
+.土{
+  background-color: #d7eefb!important;
+}
+.日{
+  background-color: #fbe9e9!important;
+}
