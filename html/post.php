@@ -9,10 +9,31 @@
 
     $userid = $_POST['userid'];
     $date = $_POST['date'];
-    $start_time = $_POST['start_time'];
-    $end_time = $_POST['end_time'];
+    $start_time = timeConvert($_POST['start_time']);
+    $end_time = timeConvert($_POST['end_time']);
 
     
+
+    //start_time補正
+    function timeConvert(input){
+      switch (strlen(input)):
+        case 0:
+            return "";
+            break;
+        case 1:
+            return "0" . input . ":00:00";
+            break;
+        case 2:
+            return input . ":00:00";
+            break;
+        case 4:
+          return substr(input,0,2) . ":" . substr(input,2,2) . ":00";
+          break;
+        default:
+          return "";
+      endswitch;
+    }
+
 
     $stmt = $dbh->prepare("INSERT INTO work_time (id, userid, date, start_time, end_time) VALUES (0, :userid, :date, :start_time, :end_time)");
 

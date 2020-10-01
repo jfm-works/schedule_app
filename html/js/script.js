@@ -1,17 +1,95 @@
   console.log(user_list,work_time_list);
 
+  calendar_data = {};
+  calendar_data = initializeCalenderData(-31,31,calendar_data);
+  calendar_data = calendarAddWorkTimeList(work_time_list,calendar_data);
+  console.log(calendar_data);
+  makeCalenderTable(calendar_data,-31,31)
+  
+  updateDbView(raw_user_list,"users_db");
+  // updateDbView(user_list,"users_db");
+  updateDbView(raw_work_time_list,"work_time_db");
+  // updateDbView(work_time_list,"work_time_db");
+
+  var btns = document.querySelectorAll('.calendar-cell-inner');
+  for(var i = 0; i < btns.length; i++){
+    btns[i].addEventListener('click',function(){
+      this.style.color = 'blue';
+      tes([this.dataset.user_id,this.dataset.date,this.dataset.start_time,this.dataset.end_time]);
+      
+      let modal_header = document.getElementById("exampleModalLabel");
+      // modal_header.innerHTML = "";
+      modal_header.innerHTML = "<h5>"
+      + this.dataset.date + "(" + this.dataset.youbi + ") / " + this.dataset.user_name + "の予定</h5>";
+      let modal_body = document.getElementById("modalBody");
+      // modal_body.innerHTML = "";
+      modal_body.innerHTML = '<form action="/posttest.php" method="post"><input type="hidden" name="userid" value="'+this.dataset.user_id+'"><input type="hidden" name="date" value="'+this.dataset.date+'">出勤<input type="text" name="start_time" value="'+this.dataset.start_time+'">退勤<input type="text" name="end_time" value="'+this.dataset.end_time+'"><div class="modal-footer"><button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button><input type="submit" class="btn btn-primary" value="送信"></form></div>';
+    },false);
+  }
+
+  function tes(text) {
+    console.log(text);
+  }
+
+  function updateDbView(list,target_table) {
+    if (document.getElementById(target_table)) {
+      const tbody = document.getElementById(target_table).children[1];
+      list.forEach(elements => {
+        const tr = document.createElement("tr");
+        elements.forEach(element => {
+          const td = document.createElement("td");
+          const contents = document.createTextNode(element);
+          td.appendChild(contents);
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
+    }
+  }
+
   function makeCalendarCell(user_name,yyyymmdd,start_time="",end_time="") {
     const tr = document.getElementById(user_name[0]+user_name[1]);
     const td = document.createElement('td');
+    const connainer = document.createElement('div');
+    const div = document.createElement('div');
     const youbi = [ "日", "月", "火", "水", "木", "金", "土" ][new Date(yyyymmdd).getDay()];
     const contents = document.createTextNode(start_time+"-"+end_time);
     td.dataset.user_id = user_name[0];
     td.dataset.user_name = user_name[1];
     td.dataset.date = yyyymmdd;
     td.dataset.youbi = youbi;
+    td.dataset.start_time = start_time;
+    td.dataset.end_time = end_time;
+    connainer.dataset.user_id = user_name[0];
+    connainer.dataset.user_name = user_name[1];
+    connainer.dataset.date = yyyymmdd;
+    connainer.dataset.youbi = youbi;
+    connainer.dataset.start_time = start_time;
+    connainer.dataset.end_time = end_time;
+    connainer.dataset.toggle = "modal";
+    connainer.dataset.target = "#exampleModal";
     td.classList.add("calendar-cell",youbi);
-    td.appendChild(contents);
-    tr.appendChild(td);
+    connainer.classList.add("calendar-cell-inner");
+    div.appendChild(contents);
+    
+    if (!tr.lastChild) {
+      //1列目はtr末尾にtdを追加
+      connainer.appendChild(div);
+      td.appendChild(connainer);
+      tr.appendChild(td);
+      //console.log("lastChild"+ tr.lastChild.dataset.date + "yyyymdd" + yyyymmdd);
+    }else{
+      //console.log("lastChild"+ tr.lastChild.dataset.date + "yyyymdd" + yyyymmdd);
+      if (tr.lastChild.dataset.date === yyyymmdd) {
+        //同じyyymmddのtdが存在する場合はtd内のcontainerに追加
+        tr.lastChild.lastChild.appendChild(div);
+      }else{
+        //tdが存在しない場合はtr末尾にtdを追加
+        connainer.appendChild(div);
+        td.appendChild(connainer);
+        tr.appendChild(td);
+      }
+    }  
   }
 
   function makeCalendarDate(yyyymmdd) {
@@ -27,13 +105,7 @@
     tr.appendChild(td);
   }
 
-  calendar_data = {};
-  calendar_data = initializeCalenderData(-31,31,calendar_data);
-  calendar_data = calendarAddWorkTimeList(work_time_list,calendar_data);
 
-  console.log(calendar_data);
-
-  makeCalenderTable(calendar_data,-31,31)
 
   function initializeCalenderData(from,to,calendar_data) {
     for (let i = from; i < to; i++) {
@@ -125,8 +197,5 @@
           makeCalendarCell(user_name,getAfterNdays(i));
         }
       });
-
     }
-
-
   }

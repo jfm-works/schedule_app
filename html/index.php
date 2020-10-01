@@ -80,6 +80,51 @@
     }
   ?>
 
+<div class="container">
+<h2>users</h2>
+<table id="users_db" class="table table-bordered">
+  <thead>
+    <tr>
+      <th>userid</th><th>name</th><th>pw</th><th>created</th><th>isdelete</th>
+    </tr>
+  </thead>
+  <tbody>
+  </tbody>
+</table>
+
+<h2>work_time</h2>
+<table id="work_time_db" class="table table-bordered">
+  <thead>
+    <tr>
+      <th>id</th><th>userid</th><th>date</th><th>start_time</th><th>end_time</th>
+    </tr>
+  </thead>
+  <tbody>
+  </tbody>
+</table>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div id="modalBody" class="modal-body">
+        ...
+      </div>
+      <!-- <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div> -->
+    </div>
+  </div>
+</div>
+
 
 <script>
 let user_list = [];
@@ -87,9 +132,10 @@ let raw_user_list = (<?= json_encode($user_list_array) ?>);
 raw_user_list.forEach(e => {
   user_list.push([e[0],e[1]]);
 });
-let work_time_list = (<?= json_encode($work_time_array) ?>);
-work_time_list.forEach(e => {
-  e.shift();
+let work_time_list = [];
+let raw_work_time_list = (<?= json_encode($work_time_array) ?>);
+raw_work_time_list.forEach(e => {
+  work_time_list.push([e[1],e[2],e[3],e[4]]);
 });
 console.log(work_time_list);
 
