@@ -7,15 +7,16 @@
 </head>
 <body>
 <?php
-    $userid = $_POST['userid'];
-    $date = $_POST['date'];
+    $userid = preg_replace("/[^0-9]/","",$_POST['userid']);
+    $date = preg_replace("/[^0-9\-]/","",$_POST['date']);
     $start_time = timeConvert($_POST['start_time']);
     $end_time = timeConvert($_POST['end_time']);
-
+    
     
 
     //start_time補正
     function timeConvert($input){
+      $input = preg_replace("/[^0-9]/","",$input);
       switch (strlen($input)):
         case 0:
             return "";
@@ -32,8 +33,14 @@
         case 4:
           return substr($input,0,2) . ":" . substr($input,2,2) . ":00";
           break;
+        case 5:
+          return "0" . substr($input,0,1) . ":" . substr($input,1,2) . ":" . substr($input,3,2);
+          break;
+        case 6:
+          return substr($input,0,2) . ":" . substr($input,2,2) . ":" . substr($input,4,2);
+          break;
         default:
-          return "";
+          return $input;
       endswitch;
     }
   

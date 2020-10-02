@@ -17,13 +17,13 @@
   </div>
   <div id="post_result"></div>
   <button onClick='post()'>"1","2020-09-05","09:00:00","18:00:00"</button>
-  <form action="/posttest.php" method="post">
+  <!-- <form action="/posttest.php" method="post">
     <input type="text" name="userid" value="1">
     <input type="text" name="date" value="2020-09-05">
     <input type="text" name="start_time" value="09:00:00">
     <input type="text" name="end_time" value="18:00:00">
     <input type="submit" value="送信">
-  </form>
+  </form> -->
 </div>
   <?php
     // phpinfo();
@@ -145,12 +145,13 @@ console.log(work_time_list);
 <script>
   // let post_data = {userid: "1", date:"2020-09-05", start_time:"09:00:00",end_time:"18:00:00"}
 // XHRの宣言
-  function post() {
+  function post(post_data = "userid="+document.getElementById("post_userid")+"&date="+document.getElementById("post_date")+"&start_time="+document.getElementById("start_time")+"&end_time="+document.getElementById("end_time")) {
     //console.log(post_data);
-    let post_data = "userid=1&date=2020-09-05&start_time=09:00:00&end_time=18:00:00"
+    //let post_data = "userid=1&date=2020-09-05&start_time=09:00:00&end_time=18:00:00"
     var XHR = new XMLHttpRequest();
     // openメソッドにPOSTを指定して送信先のURLを指定します
-    XHR.open("POST", "/post.php", true);
+    XHR.open("POST", "/posttest.php", true);
+    // XHR.open("POST", "/post.php", true);
     XHR.setRequestHeader( 'Content-Type', 'application/x-www-form-urlencoded;charset=UTF-8' );
     // sendメソッドにデータを渡して送信を実行する
     XHR.send(post_data);

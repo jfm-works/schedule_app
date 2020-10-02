@@ -23,7 +23,7 @@
       + this.dataset.date + "(" + this.dataset.youbi + ") / " + this.dataset.user_name + "の予定</h5>";
       let modal_body = document.getElementById("modalBody");
       // modal_body.innerHTML = "";
-      modal_body.innerHTML = '<form action="/posttest.php" method="post"><input type="hidden" name="userid" value="'+this.dataset.user_id+'"><input type="hidden" name="date" value="'+this.dataset.date+'">出勤<input type="text" name="start_time" value="'+this.dataset.start_time+'">退勤<input type="text" name="end_time" value="'+this.dataset.end_time+'"><div class="modal-footer"><button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button><input type="submit" class="btn btn-primary" value="送信"></form></div>';
+      modal_body.innerHTML = '<div><form action="/posttest.php" method="post"><input type="hidden" id="post_userid" name="userid" value="'+this.dataset.user_id+'"><input type="hidden" id="post_date" name="date" value="'+this.dataset.date+'">出勤<input type="text" id="post_start_time" name="start_time" value="'+this.dataset.start_time+'">退勤<input type="text" id="post_end_time" name="end_time" value="'+this.dataset.end_time+'"><div class="modal-footer"><button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button><button type="button" class="btn btn-primary" data-dismiss="modal" onClick="post()">xhrsend</button><input type="submit" value="formpost"></form></div>';
     },false);
   }
 
