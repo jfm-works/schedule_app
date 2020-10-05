@@ -42,11 +42,6 @@
     $start_time = timeConvert($_POST['start_time']);
     $end_time = timeConvert($_POST['end_time']);
 
-    
-
-
-
-
     $stmt = $dbh->prepare("INSERT INTO work_time (id, userid, date, start_time, end_time) VALUES (0, :userid, :date, :start_time, :end_time)");
 
     $stmt->bindValue(':userid', $userid, PDO::PARAM_INT);
@@ -55,8 +50,15 @@
     $stmt->bindParam(':end_time', $end_time);
 
     $stmt->execute();
-
-    print("sql:" . $userid . $date . $start_time . $end_time);
+    //$restxt = '{"state":OK, "userid":"' . $userid . '", "date":"' . $date . '", "start_time":"' . $start_time . '", "end_time":"' . $end_time . '"}';
+    $restxt = [
+      "state"=>"OK",
+      "userid"=>$userid,
+      "date"=>$date,
+      "start_time"=>$start_time,
+      "end_time"=>$end_time
+    ];
+    echo json_encode($restxt,JSON_UNESCAPED_UNICODE);
 
     //データベース接続切断
     $dbh = null;

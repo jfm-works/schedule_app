@@ -15,8 +15,9 @@
   <tbody id="result_tbody"></tbody>
   </table>
   </div>
-  <div id="post_result"></div>
-  <button onClick='post()'>"1","2020-09-05","09:00:00","18:00:00"</button>
+
+  
+  <!-- <button onClick='post()'>"1","2020-09-05","09:00:00","18:00:00"</button> -->
   <!-- <form action="/posttest.php" method="post">
     <input type="text" name="userid" value="1">
     <input type="text" name="date" value="2020-09-05">
@@ -79,9 +80,15 @@
       die();
     }
   ?>
+<hr>
 
+  <div class=container>
+  <h4>デバッグ情報</h4>
+    <h5>post結果</h5>
+    <div id="post_result">...</div>
+  </div>
 <div class="container">
-<h2>users</h2>
+<h5>DB_users</h5>
 <table id="users_db" class="table table-bordered">
   <thead>
     <tr>
@@ -92,7 +99,7 @@
   </tbody>
 </table>
 
-<h2>work_time</h2>
+<h5>DB_work_time</h5>
 <table id="work_time_db" class="table table-bordered">
   <thead>
     <tr>
@@ -144,24 +151,27 @@ console.log(work_time_list);
 <script src="/js/script.js"></script>
 <script>
   // let post_data = {userid: "1", date:"2020-09-05", start_time:"09:00:00",end_time:"18:00:00"}
-// XHRの宣言
-  function post(post_data = "userid="+document.getElementById("post_userid")+"&date="+document.getElementById("post_date")+"&start_time="+document.getElementById("start_time")+"&end_time="+document.getElementById("end_time")) {
-    //console.log(post_data);
+  function post(post_data = "userid="+document.getElementById("post_userid").value+"&date="+document.getElementById("post_date").value+"&start_time="+document.getElementById("post_start_time").value+"&end_time="+document.getElementById("post_end_time").value) {
+    console.log(post_data);
     //let post_data = "userid=1&date=2020-09-05&start_time=09:00:00&end_time=18:00:00"
     var XHR = new XMLHttpRequest();
-    // openメソッドにPOSTを指定して送信先のURLを指定します
-    XHR.open("POST", "/posttest.php", true);
-    // XHR.open("POST", "/post.php", true);
+    XHR.open("POST", "/post.php", true);
+    // XHR.open("POST", "/posttest.php", true);
     XHR.setRequestHeader( 'Content-Type', 'application/x-www-form-urlencoded;charset=UTF-8' );
-    // sendメソッドにデータを渡して送信を実行する
     XHR.send(post_data);
-
-    // サーバの応答をonreadystatechangeイベントで検出して正常終了したらデータを取得する
     XHR.onreadystatechange = function(){
       if(XHR.readyState == 4 && XHR.status == 200){
-        // POST送信した結果を表示する
         console.log("XHR OK");
         document.getElementById("post_result").innerHTML = XHR.responseText;
+        console.log(XHR.responseText);
+        const raw_res_status = XHR.responseText;
+        const res_status = JSON.parse(raw_res_status);
+        if (res_status.state === "OK") {
+          console.log("OK");
+          calendar_data = addCalendar(res_status,calendar_data);
+        }else{
+          console.log("NG");
+        }
       }
     };
   }

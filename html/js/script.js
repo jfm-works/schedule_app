@@ -14,22 +14,16 @@
   var btns = document.querySelectorAll('.calendar-cell-inner');
   for(var i = 0; i < btns.length; i++){
     btns[i].addEventListener('click',function(){
-      this.style.color = 'blue';
-      tes([this.dataset.user_id,this.dataset.date,this.dataset.start_time,this.dataset.end_time]);
-      
       let modal_header = document.getElementById("exampleModalLabel");
       // modal_header.innerHTML = "";
       modal_header.innerHTML = "<h5>"
       + this.dataset.date + "(" + this.dataset.youbi + ") / " + this.dataset.user_name + "の予定</h5>";
       let modal_body = document.getElementById("modalBody");
       // modal_body.innerHTML = "";
-      modal_body.innerHTML = '<div><form action="/posttest.php" method="post"><input type="hidden" id="post_userid" name="userid" value="'+this.dataset.user_id+'"><input type="hidden" id="post_date" name="date" value="'+this.dataset.date+'">出勤<input type="text" id="post_start_time" name="start_time" value="'+this.dataset.start_time+'">退勤<input type="text" id="post_end_time" name="end_time" value="'+this.dataset.end_time+'"><div class="modal-footer"><button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button><button type="button" class="btn btn-primary" data-dismiss="modal" onClick="post()">xhrsend</button><input type="submit" value="formpost"></form></div>';
+      modal_body.innerHTML = '<div><form action="/posttest.php" method="post"><input type="hidden" id="post_userid" name="userid" value="'+this.dataset.user_id+'"><input type="hidden" id="post_date" name="date" value="'+this.dataset.date+'">出勤<input type="text" id="post_start_time" name="start_time" value="'+this.dataset.start_time+'">例:9:00<br>退勤<input type="text" id="post_end_time" name="end_time" value="'+this.dataset.end_time+'">例:18:00<div class="modal-footer"><button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button><button type="button" class="btn btn-primary" data-dismiss="modal" onClick="post()">登録</button></div>';
     },false);
   }
 
-  function tes(text) {
-    console.log(text);
-  }
 
   function updateDbView(list,target_table) {
     if (document.getElementById(target_table)) {
@@ -60,6 +54,7 @@
     td.dataset.youbi = youbi;
     td.dataset.start_time = start_time;
     td.dataset.end_time = end_time;
+    td.id = yyyymmdd+","+user_name[0];
     connainer.dataset.user_id = user_name[0];
     connainer.dataset.user_name = user_name[1];
     connainer.dataset.date = yyyymmdd;
@@ -177,7 +172,7 @@
     tr.id = "date_tr";
     date_header.appendChild(tr);
     const td = document.createElement('td');
-    const contents = document.createTextNode("#");
+    const contents = document.createTextNode("名前");
     td.appendChild(contents);
     td.classList.add("calendar-head");
     tr.appendChild(td);
@@ -198,4 +193,22 @@
         }
       });
     }
+  }
+
+  function addCalendar(add,calendar_data) {
+    console.log("!");
+    let username;
+      user_list.forEach(element => {
+      if (element[0] === add.userid) {
+        console.log("name=",element[1]);
+        username = element[1];
+      }
+      });
+    console.log("calendar make",add.date,username,add.start_time,add.end_time,calendar_data);
+    makeCalenderData(add.date,username,add.start_time,add.end_time,calendar_data);
+    const div = document.createElement('div');
+    const contents = document.createTextNode(add.start_time.slice(0,5)+"-"+add.end_time.slice(0,5));
+    div.appendChild(contents);
+    document.getElementById(add.date+","+add.userid).innerHTML="";
+    document.getElementById(add.date+","+add.userid).appendChild(div);
   }
