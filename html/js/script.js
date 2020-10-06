@@ -212,3 +212,54 @@
     document.getElementById(add.date+","+add.userid).innerHTML="";
     document.getElementById(add.date+","+add.userid).appendChild(div);
   }
+
+
+
+
+
+  function makeCalendarYyyyMm(yyyy=new Date().getFullYear(),mm=(
+    new Date().getMonth() + 1)){
+    const yyyymm01 = new Date(yyyy+"-"+mm+"-01");
+    const yyyymmend = new Date(yyyy,mm,0);
+    const weekday = yyyymm01.getDay();
+    console.log(yyyymm01,yyyymmend,weekday);
+    //weekday = 日:0,月:1...土:6
+    let first = 
+      (function () {
+        console.log("!!!!!");
+        for (let i = 0; i < calendar_config.youbi_list_start.length; i++) {
+          const element = calendar_config.youbi_list_start[i];
+          console.log("i",i,"calendar_config.youbi_list_start[i]",calendar_config.youbi_list_start[i]);
+          if (element === weekday) {
+            console.log("i",i);
+            return i;
+          }
+        }
+      })();
+      for (let i = first,j = 1; j < yyyymmend.getDate()+1; i++,j++) {
+        console.log('[data-calendar-position-'+i+']');
+        console.log('[data-calendar-position-day-'+i+']');
+        const first_cell = document.querySelectorAll('[data-calendar-position-'+i+']')[0];
+        const first_cell_p = document.querySelectorAll('[data-calendar-position-day-'+i+']')[0];
+        first_cell_p.innerText = j+"!!";
+      }
+      for (let i = 1,j = 1; j < first; i++,j++) {
+        console.log('[data-calendar-position-'+i+']');
+        console.log('[data-calendar-position-day-'+i+']');
+        const first_cell = document.querySelectorAll('[data-calendar-position-'+i+']')[0];
+        const first_cell_p = document.querySelectorAll('[data-calendar-position-day-'+i+']')[0];
+        first_cell_p.innerText = (yyyymm01)+"!!";
+        console.log(yyyymm01,new Date(yyyymm01));
+      }
+
+  }
+
+
+// let youbi_list_monstart = ["月","火","水","木","金","土","日"];
+// let youbi_list_sunstart = ["日","月","火","水","木","金","土"];
+const youbi_list_monstart = [1,2,3,4,5,6,0];
+const youbi_list_sunstart = [0,1,2,3,4,5,6];
+calendar_config = {};
+calendar_config.youbi_list_start = youbi_list_sunstart;
+calendar_config.youbi_list_lang = "ja";// "ja" or "en"
+console.log(calendar_config);
