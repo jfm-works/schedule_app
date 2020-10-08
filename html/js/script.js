@@ -5,7 +5,6 @@
   calendar_data = calendarAddWorkTimeList(work_time_list,calendar_data);
   console.log(calendar_data);
   makeCalenderTable(calendar_data,-31,31)
-  
   updateDbView(raw_user_list,"users_db");
   // updateDbView(user_list,"users_db");
   updateDbView(raw_work_time_list,"work_time_db");
@@ -217,8 +216,8 @@
 
 
 
-  function makeCalendarYyyyMm(yyyy=new Date().getFullYear(),mm=(
-    new Date().getMonth() + 1)){
+  function makeCalendarYyyyMmForUserid(yyyy=new Date().getFullYear(),mm=(
+    new Date().getMonth() + 1),userid="1"){
     const yyyymm01 = new Date(yyyy+"-"+mm+"-01");
     const yyyymmend = new Date(yyyy,mm,0);
     const weekday = yyyymm01.getDay();
@@ -241,17 +240,54 @@
         console.log('[data-calendar-position-day-'+i+']');
         const first_cell = document.querySelectorAll('[data-calendar-position-'+i+']')[0];
         const first_cell_p = document.querySelectorAll('[data-calendar-position-day-'+i+']')[0];
-        first_cell_p.innerText = j+"!!";
+        const first_cell_inner = document.querySelectorAll('[data-calendar-position-inner-'+i+']')[0];
+        first_cell_p.innerText = j;
+        first_cell_inner.innerHTML = "";
+        const new_inner =  document.createElement('div');
+        new_inner.dataset.calendarPositionIcon = "";
+        console.log("!!!!!" + yyyy + "-" + ("0" + mm).slice(-2) + "-" + ("0" + j).slice(-2));
+        work_time_list.forEach(array => {
+          if (array[0] === userid && array[1] === (yyyy + "-" + ("0" + mm).slice(-2) + "-" + ("0" + j).slice(-2))) {
+            new_inner.dataset.calendarScheduleIs = true;
+            new_inner.dataset.calendarScheduleUserid = array[0];
+            new_inner.dataset.calendarScheduleworktime = array[1];
+            new_inner.innerText= array[2]+array[3];
+            first_cell_inner.appendChild(new_inner);
+          }
+        });
+        
       }
-      for (let i = 1,j = 1; j < first; i++,j++) {
+      //先月分
+      for (let i = 1,j = 1; j < first; i++, j++) {
         console.log('[data-calendar-position-'+i+']');
         console.log('[data-calendar-position-day-'+i+']');
         const first_cell = document.querySelectorAll('[data-calendar-position-'+i+']')[0];
-        const first_cell_p = document.querySelectorAll('[data-calendar-position-day-'+i+']')[0];
-        first_cell_p.innerText = (yyyymm01)+"!!";
+        // const first_cell_p = document.querySelectorAll('[data-calendar-position-day-'+i+']')[0];
+        // first_cell_p.innerText = (yyyymm01)+"!!";
+        const first_cell_day = document.querySelectorAll('[data-calendar-position-day-'+i+']')[0];
+        const first_cell_inner = document.querySelectorAll('[data-calendar-position-inner-'+i+']')[0];
+        first_cell_day.innerText = "";
+        first_cell_inner.innerHTML = "";
         console.log(yyyymm01,new Date(yyyymm01));
       }
+      //来月分
+      for (let i = yyyymmend.getDate()+first,j = 1; i < 43; i++, j++) {
+        console.log("yyyymmend.getDate()+1",yyyymmend.getDate()+1);
+        console.log('[data-calendar-position-'+i+']');
+        console.log('[data-calendar-position-day-'+i+']');
+        const first_cell = document.querySelectorAll('[data-calendar-position-'+i+']')[0];
+        // const first_cell_p = document.querySelectorAll('[data-calendar-position-day-'+i+']')[0];
+        // first_cell_p.innerText = (yyyymm01)+"!!";
+        const first_cell_day = document.querySelectorAll('[data-calendar-position-day-'+i+']')[0];
+        const first_cell_inner = document.querySelectorAll('[data-calendar-position-inner-'+i+']')[0];
+        first_cell_day.innerText = "";
+        first_cell_inner.innerHTML = "";
+        console.log(yyyymm01,new Date(yyyymm01));
+      }
+  }
 
+  function calendardataConvertCalendarcell(user) {
+    
   }
 
 
@@ -263,3 +299,4 @@ calendar_config = {};
 calendar_config.youbi_list_start = youbi_list_sunstart;
 calendar_config.youbi_list_lang = "ja";// "ja" or "en"
 console.log(calendar_config);
+makeCalendarYyyyMmForUserid();
