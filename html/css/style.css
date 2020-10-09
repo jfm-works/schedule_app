@@ -19,3 +19,17 @@
 .日{
   background-color: #fbe9e9!important;
 }
+.sat{
+  background-color: #d7eefb!important;
+}
+.sun{
+  background-color: #fbe9e9!important;
+}
+.schedule-btn{
+  background: url("/img/circle.png") no-repeat center / contain;
+  height:8px;
+  margin: 4px 0;
+}
+.test{
+  background-color: #d7eefb!important;
+}
