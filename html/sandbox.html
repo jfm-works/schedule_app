@@ -9,14 +9,15 @@
 </head>
 <body>
     <div class="container">
-        <div class="position-relative mx-auto d-flex flex-column" style="width:435px;height:865px;background:no-repeat center / cover url('/img/iphonese.png')">
-          <div class="position-absolute" style="width:375px;height:667px;top:11.5%;left:7%;background-color:rgba(255,255,255,1)" >
+        <div class="mockup-outer mx-auto d-flex flex-column">
+          <div class="mockup-inner">
             <div id="calendar_area">
               <div class="table-responsive">
+                <div class="h5 m-0 text-center" data-heading-active-user></div>
                 <div class="d-flex justify-content-around">
-                  <div data-prev-month class="col-2 btn"></div>
-                  <h5 data-heading-yyyymm="" class="text-center col-6"></h5>
-                  <div data-next-month class="col-2 btn"></div>
+                  <div data-prev-month class="col-2 text-center"></div>
+                  <div data-heading-yyyymm="" class="h5 m-0 text-center col-6"></div>
+                  <div data-next-month class="col-2 text-center"></div>
                 </div>
                 <table class="table table-bordered" style="table-layout:fixed;">
                   <tr>
@@ -86,9 +87,12 @@
                 </table>
               </div>
             </div>
-            <div id="message_area">
+            <div id="message_area" class="mx-2">
               <div data-message-header></div>
-              <div></div>
+              <div data-message-worklist>カレンダーの日付をタップすると、スケジュールを登録できます。<br>「複数選択」にチェックを入れると複数の日付を選択してスケジュールを登録できます。
+              </div>
+              <div class="mx-3 pb-5 fixed-bottom"><label for="select"><input type="checkbox" name="select" id="select">複数選択</label></div>
+              
             </div>
           </div>
         </div>

@@ -72,7 +72,7 @@ class Calendar {
     }
 
     makeCalendar(yyyy=new Date().getFullYear(),mm=(
-        new Date().getMonth() + 1)) {
+        new Date().getMonth() + 1),user=users[active_user_number]) {
 
         const yyyymm01 = new Date(yyyy+"-"+mm+"-01");
         let next_month_yyyymm01;
@@ -80,23 +80,19 @@ class Calendar {
             next_month_yyyymm01 = new Date((Number(yyyy)+1)+"-"+"01"+"-01");
         }else{
             next_month_yyyymm01 = new Date(yyyy+"-"+(Number(mm)+1)+"-01");
-            console.log(yyyy,"+",mm+1,"+","-01=",(yyyy+"-"+(mm+1)+"-01"));
-            console.log(new Date(yyyy+"-"+(mm+1)+"-01"));
         }
         let prev_month_yyyymm01;
         if (mm == "1") {
             prev_month_yyyymm01 = new Date((Number(yyyy)-1)+"-"+"12"+"-01");
         }else{
             prev_month_yyyymm01 = new Date(yyyy+"-"+(Number(mm)-1)+"-01");
-            console.log(yyyy,"+",mm+1,"+","-01=",(yyyy+"-"+(mm-1)+"-01"));
-            console.log(new Date(yyyy+"-"+(mm+1)+"-01"));
         }
 
         const yyyymmend = new Date(yyyy,mm,0);
         const first_weekday = yyyymm01.getDay();
-        console.log("makeCalendar start");
-        console.log("yyyy:",yyyy,"mm:",mm);
-        console.log("next_month_yyyymm01",next_month_yyyymm01);
+        // console.log("makeCalendar start");
+        // console.log("yyyy:",yyyy,"mm:",mm);
+        // console.log("next_month_yyyymm01",next_month_yyyymm01);
         const heading_yyyymm = document.querySelectorAll('[data-heading-yyyymm]')[0];
         const next_month = document.querySelectorAll('[data-next-month]')[0];
         next_month.dataset.onclickyyyy = next_month_yyyymm01.getFullYear();
@@ -116,7 +112,6 @@ class Calendar {
             for (let i = 0; i < this.calendar_config.youbi_list_start.length; i++) {
                 const element = this.calendar_config.youbi_list_start[i];
                     if (element === first_weekday) {
-                        console.log("first->",i+1);
                         return i+1;
                     }
                 }   
@@ -137,8 +132,7 @@ class Calendar {
             cell_day.dataset.outerdate = yyyy+"-"+("0" + mm).slice(-2)+"-"+("0" + j).slice(-2);
             cell_work.dataset.innerdate = yyyy+"-"+("0" + mm).slice(-2)+"-"+("0" + j).slice(-2);
             const new_inner =  document.createElement('div');
-            new_inner.dataset.calendarPositionIcon = "";
-            console.log("!!!!!" + yyyy + "-" + ("0" + mm).slice(-2) + "-" + ("0" + j).slice(-2));            
+            new_inner.dataset.calendarPositionIcon = "";       
         }
         //先月分
         for (let i = 1,j = 1; j < first; i++, j++) {
@@ -153,14 +147,11 @@ class Calendar {
             const cell_work = document.querySelectorAll('[data-calendar-position-inner-'+i+']')[0];
             cell_day.innerText = "";
             cell_work.innerHTML = "";
-            console.log(yyyymm01,new Date(yyyymm01));
+            cell_day.dataset.outerdate = "";
+            cell_work.dataset.innerdate = "";
         }
         //来月分
         for (let i = yyyymmend.getDate()+first,j = 1; i < 43; i++, j++) {
-
-            console.log("yyyymmend.getDate()+1",yyyymmend.getDate()+1);
-            console.log('[data-calendar-position-'+i+']');
-            console.log('[data-calendar-position-day-'+i+']');
             const cell_td = document.querySelectorAll('[data-calendar-position-'+i+']')[0];
             cell_td.dataset.youbi = "";
             cell_td.classList.remove("schedule-exist","sun","sat");
@@ -170,7 +161,8 @@ class Calendar {
             const cell_work = document.querySelectorAll('[data-calendar-position-inner-'+i+']')[0];
             cell_day.innerText = "";
             cell_work.innerHTML = "";
-            console.log(yyyymm01,new Date(yyyymm01));
+            cell_day.dataset.outerdate = "";
+            cell_work.dataset.innerdate = "";
         }
         //曜日class付与
         const domlist_sun = document.querySelectorAll('[data-youbi="0"]');
@@ -183,12 +175,12 @@ class Calendar {
             domlist_sat[i].classList.add("sat");
             
         }
-        // domlist_sun.forEach(dom => {
-        //     dom.classList.add("sun");
-        // });
-        // domlist_sat.forEach(dom => {
-        //     dom.classList.add("sat");
-        // });
+        document.querySelectorAll(".calendar-td").forEach(dom => {
+            dom.classList.remove("checked");
+        });
+        document.querySelectorAll('[data-message-header]')[0].innerHTML="";
+        document.querySelectorAll('[data-message-worklist]')[0].innerHTML="";
+        this.makeUserWorktimeCalendar(user); 
     }
 
     makeUserWorktimeCalendar(user){
@@ -198,6 +190,10 @@ class Calendar {
         console.log("★makeUserWorktimeCalendar");
         user.work_time_list.forEach(work_time_list => {
             const write_dom = document.querySelectorAll('[data-innerdate="'+work_time_list[2]+'"] ')[0];
+            if (!write_dom) {
+                console.log("write_dom undefined");
+                return;
+            }
             write_dom.innerHTML = "";
             const td = write_dom.parentNode;
             td.classList.add("schedule-exist");
@@ -209,14 +205,33 @@ class Calendar {
             schedule_btn.dataset.end_time = work_time_list[4];
             schedule_btn.classList.add("schedule-btn");
             write_dom.appendChild(schedule_btn);
+
         });
     }
     clickSchedule(innerdiv){
+        if (!innerdiv.dataset.innerdate) {
+            return;
+        }
+        document.querySelectorAll(".calendar-td").forEach(dom => {
+            dom.classList.remove("checked");
+        });
+        innerdiv.parentNode.classList.add("checked");
         const message_header = document.querySelectorAll('[data-message-header]')[0];
         console.log(new Date(innerdiv.dataset.innerdate));
         
         const weekday = new Date(innerdiv.dataset.innerdate).getDay();
         message_header.innerHTML= innerdiv.dataset.innerdate + "(" + calendar.calendar_config.youbi_name[weekday] + ")の予定";
+        const message_worklist = document.querySelectorAll('[data-message-worklist]')[0];
+        if (!innerdiv.firstElementChild) {
+            console.log("なし");
+            message_worklist.innerHTML = "予定なし";
+            message_worklist.innerHTML += "<br><button class='btn btn-primary'>登録</button>";
+        }else{
+            console.log("あり");
+            message_worklist.innerHTML = "出勤"+innerdiv.firstElementChild.dataset.start_time.slice(0,5) + " 退勤" + innerdiv.firstElementChild.dataset.end_time.slice(0,5);
+            message_worklist.innerHTML += "<br><button class='btn btn-primary'>変更</button>";
+            message_worklist.innerHTML += "<button class='mx-4 btn btn-danger'>"+innerdiv.firstElementChild.dataset.date+"の予定を削除</button>";
+        }
         // 複数選択モード
         // 変更する     
         // 削除する
@@ -267,20 +282,42 @@ user_list.forEach(array => {
     users.push(new User(array[0],user_list, work_time_list));
 });
 console.log(users);
+
+//★
+active_user_id = "1";
+active_user_number = 0;
+//
+
 calendar = new Calendar();
 console.log("★");
-calendar.makeUserWorktimeCalendar(users[0]);
+
+
+for (let i = 0; i < users.length; i++) {
+    console.log("active_user_number",i,users[i]);
+    if (active_user_id === users[i].id) {
+        console.log("active_user_number",active_user_id,"i",i,users[i]);
+        active_user_number = i;
+        if (users[active_user_number].name.slice(-2) !== "さん") {
+            document.querySelectorAll('[data-heading-active-user]')[0].innerHTML = users[active_user_number].name+"さんの予定";
+        } else {
+            document.querySelectorAll('[data-heading-active-user]')[0].innerHTML = users[active_user_number].name+"の予定";
+        }
+        break;
+    }   
+}
+console.log(users[active_user_number]);
+calendar.makeUserWorktimeCalendar(users[active_user_number]);
 
 
 const calendarClick = document.querySelectorAll('.calendar-td');
 for(var i = 0; i < calendarClick.length; i++){
     calendarClick[i].addEventListener('click',function(){
         if (this.classList.contains("schedule-exist")) {
-            console.log("exist");
+            console.log("work exist");
             console.log(this.children[1].firstElementChild);
             calendar.clickSchedule(this.children[1])
         }else{
-            console.log("none");
+            console.log("work none");
             console.log(this.children[1]);
             calendar.clickSchedule(this.children[1])
         }
