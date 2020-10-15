@@ -83,26 +83,25 @@ class Calendar {
     makeCalendar(yyyy=new Date().getFullYear(),mm=(
         new Date().getMonth() + 1),user=users[active_user_number]) {
 
-        const yyyymm01 = new Date(yyyy+"-"+mm+"-01");
+        const yyyymm01 = new Date(yyyy+"-"+("0"+String(mm)).slice(-2)+"-01");
         let next_month_yyyymm01;
         if (mm == "12") {
             next_month_yyyymm01 = new Date((Number(yyyy)+1)+"-"+"01"+"-01");
         }else{
-            next_month_yyyymm01 = new Date(yyyy+"-"+(Number(mm)+1)+"-01");
+            next_month_yyyymm01 = new Date(yyyy+"-"+("0"+String(Number(mm)+1)).slice(-2)+"-01");
         }
         let prev_month_yyyymm01;
         if (mm == "1") {
             prev_month_yyyymm01 = new Date((Number(yyyy)-1)+"-"+"12"+"-01");
         }else{
-            prev_month_yyyymm01 = new Date(yyyy+"-"+(Number(mm)-1)+"-01");
+            prev_month_yyyymm01 = new Date(yyyy+"-"+("0"+String(Number(mm)-1)).slice(-2)+"-01");
         }
 
         const yyyymmend = new Date(yyyy,mm,0);
         const first_weekday = yyyymm01.getDay();
-        // console.log("makeCalendar start");
-        // console.log("yyyy:",yyyy,"mm:",mm);
-        // console.log("next_month_yyyymm01",next_month_yyyymm01);
         const heading_yyyymm = document.querySelectorAll('[data-heading-yyyymm]')[0];
+        // console.log("old data-heading-yyyymm:",heading_yyyymm.dataset.headingYyyymm);
+        // console.log("new data-heading-yyyymm:",yyyymm01);
         heading_yyyymm.dataset.headingYyyymm = yyyymm01;
         const next_month = document.querySelectorAll('[data-next-month]')[0];
         next_month.dataset.onclickyyyy = next_month_yyyymm01.getFullYear();
