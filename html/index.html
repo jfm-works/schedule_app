@@ -17,19 +17,22 @@
 <body>
   <div id="app" v-cloak>
     <div id="y_wrapper" class="d-flex flex-column justify-content-between" style="height:100vh">
-      <div id="calendar" style="display: none;">
+      <div class="text-center"><svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-person-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+        <path fill-rule="evenodd" d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+      </svg>{{user_list.filter(x => x.userid === login_userid)[0].username}}</div>
+      <div id="calendar">
         <div class="container d-flex flex-wrap justify-content-center">
           <div class="w-100 d-flex justify-content-between">
             <div style="font-size: 10px;"><button class="btn btn-outline-secondary btn-sm" onclick="makeCalendarCell(new Date(app.selected_yyyymm.getFullYear(),app.selected_yyyymm.getMonth()-1,1));">←先月</button></div>
             <div class="d-flex flex-column justify-content-center">
-            <div style="font-size: 14px;">{{ selected_yyyymm.getFullYear() }}年{{ selected_yyyymm.getMonth()+1 }}月</div>
+            <div style="font-size: 14px;">{{user_list.filter(x => x.userid === member_calendar_selected_userid)[0].username}} {{ selected_yyyymm.getFullYear() }}年{{ selected_yyyymm.getMonth()+1 }}月</div>
             </div>
             <div class="d-flex flex-column justify-content-center">
               <div style="font-size: 10px;"><button class="btn btn-outline-secondary btn-sm" onclick="makeCalendarCell(new Date(app.selected_yyyymm.getFullYear(),app.selected_yyyymm.getMonth()+1,1));">翌月→</button></div>
             </div>
           </div>
-          <div class="text-center" style="font-size:10px;width:14%;" v-for="week in week_order">
-            <div class="border">
+        <div class="text-center" style="font-size:10px;width:14%;" v-for="week in week_order" v-bind:data-week="week" onclick="multiplePanel(multipleWeekRegistration(app.selected_yyyymm.getFullYear(),app.selected_yyyymm.getMonth(),this.dataset.week))">
+            <div class="border btn-sm btn-outline-secondary p-0">
               {{ week }}
             </div>
           </div>
@@ -48,7 +51,7 @@
           </div>
         </div>
       </div>
-      <div id="member_calendar" style="height:354px" class="container">
+      <div id="member_calendar" style="height:354px;display: none;" class="container">
         <div class="w-100 d-flex justify-content-between">
           <div style="font-size: 10px;"><button class="btn btn-outline-secondary btn-sm" onclick="makeCalendarCell(new Date(app.selected_yyyymm.getFullYear(),app.selected_yyyymm.getMonth()-1,1));">←先月</button></div>
           <div class="d-flex flex-column justify-content-center">
@@ -96,13 +99,14 @@
       <div id="panel" class="hidden-scroll container" style="flex:1 1 auto; overflow-y: scroll;">
         <div id="main_panel">
           <div>
-            {{selected_date.replace(/,/g, '-')}} {{user_list.filter(x => x.userid === member_calendar_selected_userid)[0].username}}の予定
+            {{selected_date.replace(/,/g, '-')}}({{week_order[new Date(selected_date.replace(/,/g, '-')).getDay()]}}) {{user_list.filter(x => x.userid === member_calendar_selected_userid)[0].username}}の予定
           </div>
           <div v-for="todo in todo_list">
             <div v-if="todo.userid.find(e => e === member_calendar_selected_userid) === member_calendar_selected_userid && todo.date === selected_date.replace(/,/g, '-')" class="my-2 border-bottom d-flex">
               <div style="flex:1 1 auto" class="d-flex flex-column justify-content-center">
                 <div>
-                  {{ todo.start_time.slice(0,5) }}-{{ todo.end_time.slice(0,5) }}{{ todo.title.slice(0,20) }}
+                  {{ todo.start_time.slice(0,5) }}-{{ todo.end_time.slice(0,5) }}{{ todo.title.slice(0,20) }}<br>参加者:<span v-for="userid in todo.userid">{{user_list.filter(x => x.userid == userid)[0].username}} </span>
+                  <!-- <span>{{todo.userid.forEach(id => {return {user_list.filter(x => x.userid ==id)[0].username})}}</span> -->
                 </div>
               </div>
               <div class="d-flex flex-column justify-content-center" style="flex:0 0 auto">
@@ -138,8 +142,10 @@
                   <div class="col-12">
                     <label for="validationCustom01" class="form-label">件名</label>
                     <input type="text" class="form-control" id="validationCustom01" name="title" value="" required>
-                    <div class="invalid-feedback">
-                      件名を入力してください。
+                    <div class="">
+                      <span class="btn btn-outline-secondary" onclick="document.getElementById('validationCustom01').value=this.innerHTML">{{todo_list[todo_list.length-1].title}}</span>
+                      <span class="btn btn-outline-secondary" onclick="document.getElementById('validationCustom01').value=this.innerHTML" v-if="todo_list[todo_list.length-1].title !== todo_list[todo_list.length-2].title">{{todo_list[todo_list.length-2].title}}</span>
+                      <span class="btn btn-outline-secondary" onclick="document.getElementById('validationCustom01').value=this.innerHTML" v-if="todo_list[todo_list.length-1].title !== todo_list[todo_list.length-3].title && todo_list[todo_list.length-2].title !== todo_list[todo_list.length-3].title">{{todo_list[todo_list.length-3].title}}</span>
                     </div>
                   </div>
                   <div class="col">
@@ -191,8 +197,8 @@
 
         <!-- modal detailpanel start-->
         <div class="modal fade" id="detailPanel" tabindex="-1" aria-labelledby="detailPanelLabel" aria-hidden="true">
-          <div class="modal-dialog">
-            <div class="modal-content">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content ">
               <div class="modal-header">
                 <h5 class="modal-title" id="detailPanelLabel">予定詳細</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -243,34 +249,113 @@
             </div>
           </div>
         </div>
-
+        <!-- modal detailpanel end-->
+        <!-- modal multiple registration start-->
+        <div class="modal fade" id="multiplePanel" tabindex="-1" aria-labelledby="multiplePanelLabel" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="multiplePanelLabel">予定詳細</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <form class="row g-3 needs-validation" id="multiplePanelForm" onsubmit="return false">
+                  <div class="col-12">
+                    <label for="multiplePanelTitle" class="form-label">件名</label>
+                    <input type="text" class="form-control" id="multiplePanelTitle" name="title" value="" required>
+                    <div class="invalid-feedback">
+                      件名を入力してください。
+                    </div>
+                  </div>
+                  <div class="col">
+                    <label for="multiplePanelstart_time" class="form-label">開始時間</label>
+                    <select class="form-select" name="start_time" id="multiplePanelstart_time">
+                      <option value="" selected>-</option>
+                      <option v-for="time in time_list" v-bind:value="time">{{time}}</option>
+                    </select>
+                    <div class="invalid-feedback">
+                      開始時間を入力してください。
+                    </div>
+                  </div>
+                  <div class="col">
+                    <label for="multiplePanelend_time" class="form-label">終了時間</label>
+                    <select class="form-select" name="end_time" id="multiplePanelend_time">
+                      <option value="" selected>-</option>
+                      <div v-for="time in time_list">
+                      </div>
+                      <option v-for="time in time_list" v-bind:value="time">{{time}}</option>
+                    </select>
+                  </div>
+                  <div class="col-12">
+                    参加者
+                    <div class="form-check" id="multiplePanelcheckbox">
+                      <div v-for="user in user_list">
+                        <div v-if="user.userid === member_calendar_selected_userid">
+                          <input type="checkbox" name="multipleregistration_userid" v-bind:id="'multipleregistration_userid'+user.userid" v-bind:value="user.userid" checked>
+                          <label v-bind:for="'multipleregistration_userid'+user.userid">{{user.userid}}{{user.username}}</label>
+                        </div>
+                        <div v-else>
+                          <input type="checkbox" name="multipleregistration_userid" v-bind:id="'multipleregistration_userid'+user.userid" v-bind:value="user.userid">
+                          <label v-bind:for="'multipleregistration_userid'+user.userid">{{user.userid}}{{user.username}}</label>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">キャンセル</button>
+                    <button id="multiplePanelSubmit" type="button" class="btn btn-primary" onclick="console.log('multiplePanel_insert');db_multiple_insert(this.dataset.yyyymmddarray,document.getElementById('multiplePanelTitle').value,document.getElementById('multiplePanelstart_time').value,document.getElementById('multiplePanelend_time').value,checkboxesValue(document.getElementsByName( 'multipleregistration_userid')));" data-dismiss="modal">予定を複数登録</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- modal multiple registration end-->
       </div>
-      <div id="footer" style="flex:0 0 auto;" class="">
-        {{ selected_username}} {{selected_userid }}
+      <div id="footer" style="flex:0 0 auto;" class="container p-0 justify-content-center d-flex">
+        <!-- {{ selected_username}} {{selected_userid }} -->
         <div class="d-flex justify-content-between">
           <div>
-            <div class="collapse" id="user_select">
+            <!-- <div class="collapse" id="user_select">
               <div v-for="user in user_list" v-on:click="selected_userid = user.userid;selected_username = user.username;">
                 {{ user.username }}
               </div>
             </div>
             <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#user_select" aria-expanded="false" aria-controls="user_select">
               個人予定
-            </button>
-
+            </button> -->
+            <select class="btn btn-outline-primary" id="footer_user_selected" style="font-size:12px;" onInput="footer_user_selected()">
+              <option v-for="user in user_list" v-bind:value="user.userid">{{user.username.slice(0,6)}}の予定</option>
+            </select>
 
           </div>
           <div>
-            <button class="btn btn-primary" type="button" onclick="document.getElementById('calendar').style.display='none';document.getElementById('member_calendar').style.display='block'">
+            <button style="font-size:12px;" class="btn btn-outline-primary" type="button" onclick="document.getElementById('member_calendar').style.display='none';document.getElementById('calendar').style.display='block';app.selected_userid=app.login_userid;app.member_calendar_selected_userid=app.login_userid;app.selected_calendar='user'">
+              自分の予定
+            </button>
+          </div>
+          <div>
+            <button style="font-size:12px;" class="btn btn-outline-primary" type="button" onclick="document.getElementById('calendar').style.display='none';document.getElementById('member_calendar').style.display='block';app.selected_calendar='member'">
             全体予定
             </button>
           </div>
-          <div>
-            <button class="btn btn-primary" type="button" onclick="document.getElementById('member_calendar').style.display='none';document.getElementById('calendar').style.display='block'">
-              個人予定
-              </button>
+
+          <div class="dropup">
+            <button style="font-size:12px;" class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-expanded="false">
+              デバッグ
+            </button>
+            <ul style="font-size:12px;" class="dropdown-menu" aria-labelledby="dropdownMenu2">
+              <li><button style="font-size:12px;" class="dropdown-item text-white bg-danger" type="button" onclick="localStorage.setItem('app_todo_list','')">localstorage全削除</button></li>
+              <li><button class="dropdown-item bg-warning" type="button"  onclick="localStorage.setItem('app_todo_list', JSON.stringify(db_data))">localstorage初期状態</button></li>
+              <li><button class="dropdown-item" type="button" onclick="console.log(db_read())">localstorageログ出力</button></li>
+              <li><button class="dropdown-item" type="button" onclick="app.todo_list=db_read()">localstorageをvueに読込</button></li>
+              <li><button style="font-size:12px;" class="dropdown-item text-white bg-danger" type="button" onclick="app.todo_list=[]">vue全削除</button></li>
+              <li><button class="dropdown-item bg-warning" type="button"  onclick="app.todo_list=db_data">vue初期状態</button></li>
+              <li><button class="dropdown-item" type="button" onclick="console.log(app)">vueログ出力</button></li>
+            </ul>
           </div>
-          <div>ログアウト</div>
         </div>
       </div>
       <!-- <div>{{ message }}</div>
@@ -301,17 +386,11 @@
     user_list.push({"userid": "3","username": "ちなつさん"});
     user_list.push({"userid": "4","username": "ゆかさん"});
     user_list.push({"userid": "5","username": "りこさん"});
-
     var app = new Vue({
       el: '#app',
       data: {
-        message: db_data,
-        todos: [
-          { text: 'Learn JavaScript' },
-          { text: 'Learn Vue' },
-          { text: 'Build something awesome' }
-        ],
         login_userid: "1",
+        selected_calendar: "user",
         selected_userid: "1",
         selected_username:
         user_list.filter(x => x.userid === "1")[0].username,
@@ -391,14 +470,58 @@
     console.log(date,title,start_time,end_time,users_id);
     console.log("now length",app.todo_list.length);
     app.todo_list.push({"id":app.todo_list[app.todo_list.length-1].id+1,"userid": users_id,"date": date,"start_time": start_time,"end_time": end_time,"title":title});
+    db_write();
+  }
+
+  function db_multiple_insert(csv_date_array,title,start_time,end_time,users_id) {
+    console.log(csv_date_array,title,start_time,end_time,users_id);
+    console.log("now length",app.todo_list.length);
+    const date_array = csv_date_array.split(",");
+    date_array.forEach(date => {
+      app.todo_list.push({"id":app.todo_list[app.todo_list.length-1].id+1,"userid": users_id,"date": date,"start_time": start_time,"end_time": end_time,"title":title});
+      console.log(users_id,date,start_time,end_time,title);
+    });
+    db_write();
+  }
+
+  function multiplePanel(date_array) {
+    let multiplePanel = new bootstrap.Modal(document.getElementById('multiplePanel'));
+    document.getElementById('multiplePanelLabel').innerHTML = "";
+    date_array.forEach(date => {
+      document.getElementById('multiplePanelLabel').innerHTML += date+"("+app.week_order[new Date(date).getDay()]+") ";
+    });
+    document.getElementById('multiplePanelLabel').innerHTML += "の予定";
+    document.getElementById('multiplePanelSubmit').dataset.yyyymmddarray = date_array;
+    multiplePanel.show();
+  }
+
+  function multipleWeekRegistration(yyyy,mm,week) {
+    let res_array = [];
+    const week_num = app.week_order.indexOf(week);
+    let date = new Date(yyyy,mm,1);
+    const month_end = new Date(yyyy,mm+1,0);
+    console.log(yyyy,mm,week,week_num,date,month_end);
+    for (let i = 1; i < 32; i++) {
+      date.setDate(i);
+      console.log(i,date,month_end,date.getDay());
+      if (date === month_end) {
+        i = 32;
+      }else{
+        if (date.getDay() == week_num) {
+          console.log(date.getDay(),"=",week_num);
+          console.log();
+          res_array.push(date.getFullYear()+"-"+(date.getMonth()+1)+"-"+date.getDate());
+        }
+      }
+    }
+    console.log(res_array);
+    return res_array;
   }
 
   function detailPanel(dbdataId) {
-    console.log(dbdataId);
-    console.log(app.todo_list.find(obj => obj.id == dbdataId));
     const todo = app.todo_list.find(obj => obj.id == dbdataId);
     let detailPanel = new bootstrap.Modal(document.getElementById('detailPanel'));
-    document.getElementById('detailPanelLabel').innerHTML = todo.date+"の予定";
+    document.getElementById('detailPanelLabel').innerHTML = todo.date+"("+app.week_order[new Date(todo.date).getDay()]+")の予定";
     document.getElementById('detailPanelTitle').value = todo.title;
     document.getElementById('detailPanelstart_time').value = todo.start_time;
     let start_time_option_html = "";
@@ -444,6 +567,7 @@
     update_todo.start_time = start_time;
     update_todo.end_time = end_time;
     update_todo.title = title;
+    db_write();
   }
 
   function db_delete(id) {
@@ -454,6 +578,14 @@
     delete_todo.start_time = "";
     delete_todo.end_time = "";
     delete_todo.title = "";
+    db_write();
+  }
+
+  function db_write() {
+    localStorage.setItem("app_todo_list", JSON.stringify(app.todo_list));
+  }
+  function db_read() {
+    return JSON.parse(localStorage.getItem("app_todo_list"));
   }
 
   function dbCreatePanel() {
@@ -478,6 +610,16 @@
     return res;
   }
 
+  function footer_user_selected() {
+    const obj = document.getElementById("footer_user_selected");
+    const selected = document.getElementById("footer_user_selected").selectedIndex;
+    const selected_value = obj.options[selected].value;
+    console.log(selected_value);
+    if (selected_value != 0) {
+      app.selected_userid = selected_value;
+      app.member_calendar_selected_userid = selected_value;
+    }
+  }
   var myModal = new bootstrap.Modal(document.getElementById('insertPanel'));
   //modal
   var insertPanel = document.getElementById('insertPanel')
@@ -493,10 +635,16 @@
     var modalTitle = insertPanel.querySelector('.modal-title')
     var modalBodyInput = insertPanel.querySelector('.modal-body form')
     modalBodyInput.dataset.yyyymmdd = recipient
-    modalTitle.textContent = recipient + "の予定を登録"
+    modalTitle.textContent = recipient +"("+app.week_order[new Date(recipient).getDay()]+ ")の予定を登録"
   });
 
   //main
+  if (localStorage.getItem("app_todo_list")) {
+    console.log("localstorage read...");
+    app.todo_list = db_read();
+  }else{
+    console.log("No localstorage");
+  }
   makeCalendarCell();
   </script>
 </body>
