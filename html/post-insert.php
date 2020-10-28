@@ -41,13 +41,15 @@
     $date = preg_replace("/[^0-9\-]/","",$_POST['date']);
     $start_time = timeConvert($_POST['start_time']);
     $end_time = timeConvert($_POST['end_time']);
+    $title = $_POST['title'];
 
-    $stmt = $dbh->prepare("INSERT INTO work_time (id, userid, date, start_time, end_time) VALUES (0, :userid, :date, :start_time, :end_time)");
+    $stmt = $dbh->prepare("INSERT INTO work_time (id, userid, date, start_time, end_time, title) VALUES (0, :userid, :date, :start_time, :end_time, :title)");
 
     $stmt->bindValue(':userid', $userid, PDO::PARAM_INT);
     $stmt->bindParam(':date', $date);
     $stmt->bindParam(':start_time', $start_time);
     $stmt->bindParam(':end_time', $end_time);
+    $stmt->bindParam(':title', $title);
 
     $stmt->execute();
     $id = $dbh->lastInsertId();
@@ -58,7 +60,8 @@
       "userid"=>$userid,
       "date"=>$date,
       "start_time"=>$start_time,
-      "end_time"=>$end_time
+      "end_time"=>$end_time,
+      "title"=>htmlspecialchars($title)
     ];
     echo json_encode($restxt,JSON_UNESCAPED_UNICODE);
 

@@ -445,3 +445,17 @@ function updateDbView(list,target_table) {
   // updateDbView(user_list,"users_db");
   updateDbView(work_time_list,"work_time_db");
   // updateDbView(work_time_list,"work_time_db");
+
+//calendar create
+//カレンダーを作成
+//userid,date
+
+//calendar update
+//カレンダーの一部だけ変更
+//
+
+//calendar click
+//クリックしてパネルを呼び出す
+//userid,date -> data -> panel
+//
+

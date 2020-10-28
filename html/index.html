@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    [v-cloak] {
+      display: none;
+    }
+    .hidden-scroll::-webkit-scrollbar {
+      display: none;
+    }
+  </style>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/css/bootstrap.min.css" integrity="sha384-r4NyP46KrjDleawBgD5tp8Y7UzmLA05oM1iAEQ17CSuDqnUK2+k9luXQOfXJCJ4I" crossorigin="anonymous">
+</head>
+<body>
+  <div id="app" v-cloak>
+    <div id="y_wrapper" class="d-flex flex-column justify-content-between" style="height:100vh">
+      <div id="calendar" style="display: none;">
+        <div class="container d-flex flex-wrap justify-content-center">
+          <div class="w-100 d-flex justify-content-between">
+            <div style="font-size: 10px;"><button class="btn btn-outline-secondary btn-sm" onclick="makeCalendarCell(new Date(app.selected_yyyymm.getFullYear(),app.selected_yyyymm.getMonth()-1,1));">←先月</button></div>
+            <div class="d-flex flex-column justify-content-center">
+            <div style="font-size: 14px;">{{ selected_yyyymm.getFullYear() }}年{{ selected_yyyymm.getMonth()+1 }}月</div>
+            </div>
+            <div class="d-flex flex-column justify-content-center">
+              <div style="font-size: 10px;"><button class="btn btn-outline-secondary btn-sm" onclick="makeCalendarCell(new Date(app.selected_yyyymm.getFullYear(),app.selected_yyyymm.getMonth()+1,1));">翌月→</button></div>
+            </div>
+          </div>
+          <div class="text-center" style="font-size:10px;width:14%;" v-for="week in week_order">
+            <div class="border">
+              {{ week }}
+            </div>
+          </div>
+          <div class="text-center" style="font-size:10px;width:14%;" v-for="day in day_list" v-bind:data-yyyymmdd="day.getFullYear()+','+(day.getMonth()+1)+','+day.getDate()" v-bind:data-userid="selected_userid" onclick="app.selected_date = this.dataset.yyyymmdd;app.member_calendar_selected_userid = this.dataset.userid;">
+            <div class="border-top border-left border-right py-1">
+              {{ day.getMonth()+1 }}/{{ day.getDate() }}
+            </div>
+            <div class="hidden-scroll border-bottom border-left border-right" style="height:38px;overflow-y: scroll;">
+              <div v-for="todo in todo_list">
+                <div v-bind:data-yyyymmdd="day.getFullYear()+','+(day.getMonth()+1)+','+day.getDate()" v-if="todo.userid.find(e => e === selected_userid) ===  selected_userid && todo.date === day.getFullYear()+'-'+(day.getMonth()+1)+'-'+day.getDate()" style="font-size:8px;">
+                  {{ todo.start_time.slice(0,2) }}-{{ todo.end_time.slice(0,2) }}{{ todo.title.slice(0,2) }}
+                </div>
+              </div>
+            </div>
+  
+          </div>
+        </div>
+      </div>
+      <div id="member_calendar" style="height:354px" class="container">
+        <div class="w-100 d-flex justify-content-between">
+          <div style="font-size: 10px;"><button class="btn btn-outline-secondary btn-sm" onclick="makeCalendarCell(new Date(app.selected_yyyymm.getFullYear(),app.selected_yyyymm.getMonth()-1,1));">←先月</button></div>
+          <div class="d-flex flex-column justify-content-center">
+          <div style="font-size: 14px;">{{ selected_yyyymm.getFullYear() }}年{{ selected_yyyymm.getMonth()+1 }}月</div>
+          </div>
+          <div class="d-flex flex-column justify-content-center">
+            <div style="font-size: 10px;"><button class="btn btn-outline-secondary btn-sm" onclick="makeCalendarCell(new Date(app.selected_yyyymm.getFullYear(),app.selected_yyyymm.getMonth()+1,1));">翌月→</button></div>
+          </div>
+        </div>
+        <div class="" style="overflow: scroll;flex: 0 0 auto;">
+          <!-- <div class="text-center" style="font-size:10px;width:120px;" v-for="week in week_order">
+            <div class="border">
+              {{ week }}
+            </div>
+          </div> -->
+          <div class="d-flex">
+            <div class="border" style="font-size:10px;flex: 0 0 48px;"></div>
+            <div v-for="day in day_list" v-bind:data-yyyymmdd="day.getFullYear()+','+(day.getMonth()+1)+','+day.getDate()" class="border text-center" style="font-size:10px;flex: 0 0 48px;">{{ day.getMonth()+1 }}/{{ day.getDate() }}({{week_order[day.getDay()]}})</div>
+          </div>
+          <div v-for="user in user_list" class="d-flex justify-content-start">
+            <div class="border text-center d-flex flex-column justify-content-center" style="font-size:10px;flex: 0 0 48px;">
+              <div>
+               {{user.username}}
+              </div>
+            </div>
+            <div class="d-flex">
+              <div class="text-center" style="font-size:10px;flex: 0 0 48px;" v-for="day in day_list" v-bind:data-yyyymmdd="day.getFullYear()+','+(day.getMonth()+1)+','+day.getDate()" v-bind:data-userid="user.userid" onclick="app.selected_date = this.dataset.yyyymmdd;app.member_calendar_selected_userid = this.dataset.userid">
+                <div class="border-top border-left border-right py-1">
+                  <!-- {{ day.getMonth()+1 }}/{{ day.getDate() }} -->
+                </div>
+                <div class="hidden-scroll border-bottom border-left border-right" style="height:38px;overflow-y: scroll;">
+                  <div v-for="todo in todo_list">
+                    <div v-bind:data-yyyymmdd="day.getFullYear()+','+(day.getMonth()+1)+','+day.getDate()" v-if="todo.userid.find(e => e === user.userid) ===  user.userid && todo.date === day.getFullYear()+'-'+(day.getMonth()+1)+'-'+day.getDate()" style="font-size:8px;">
+                      {{ todo.start_time.slice(0,2) }}-{{ todo.end_time.slice(0,2) }}{{ todo.title.slice(0,2) }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+      <div id="panel" class="hidden-scroll container" style="flex:1 1 auto; overflow-y: scroll;">
+        <div id="main_panel">
+          <div>
+            {{selected_date.replace(/,/g, '-')}} {{user_list.filter(x => x.userid === member_calendar_selected_userid)[0].username}}の予定
+          </div>
+          <div v-for="todo in todo_list">
+            <div v-if="todo.userid.find(e => e === member_calendar_selected_userid) === member_calendar_selected_userid && todo.date === selected_date.replace(/,/g, '-')" class="my-2 border-bottom d-flex">
+              <div style="flex:1 1 auto" class="d-flex flex-column justify-content-center">
+                <div>
+                  {{ todo.start_time.slice(0,5) }}-{{ todo.end_time.slice(0,5) }}{{ todo.title.slice(0,20) }}
+                </div>
+              </div>
+              <div class="d-flex flex-column justify-content-center" style="flex:0 0 auto">
+                <button class="btn-secondary btn btn-sm mx-2 my-1" v-bind:data-dbdata-id="todo.id" onclick="detailPanel(this.dataset.dbdataId)">詳細</button>  
+              </div>
+              <!-- <div class="d-flex flex-column justify-content-center" style="flex:0 0 auto">
+                <button class="btn-secondary btn btn-sm mx-2 my-1" v-bind:data-dbdata-id="todo.id" onclick="dbUpdatePanel(this.dataset.dbdataId)">変更</button>  
+              </div>
+              <div class="d-flex flex-column justify-content-center" style="flex:0 0 auto">
+                <button class="btn-danger btn btn-sm mx-2 my-1" v-bind:data-dbdata-id="todo.id" onclick="dbDeletePanel(this.dataset.dbdataId)">予定削除</button>
+              </div> -->
+            </div>
+          </div>
+          <div>
+            <button class="btn-primary btn btn-sm my-1" data-toggle="modal" data-target="#insertPanel" v-bind:data-whatever="selected_date.replace(/,/g, '-')">新規予定登録</button>
+          </div>
+        </div>
+        <div id="datail_panel">
+          
+        </div>
+        <!-- modal -->
+        <div class="modal fade" id="insertPanel" tabindex="-1" aria-labelledby="insertPanelLabel" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="insertPanelLabel"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <form class="row g-3 needs-validation" id="insertPanelForm" onsubmit="return false">
+                  <div class="col-12">
+                    <label for="validationCustom01" class="form-label">件名</label>
+                    <input type="text" class="form-control" id="validationCustom01" name="title" value="" required>
+                    <div class="invalid-feedback">
+                      件名を入力してください。
+                    </div>
+                  </div>
+                  <div class="col">
+                    <label for="validationCustom02" class="form-label">開始時間</label>
+                    <select class="form-select" name="start_time" id="validationCustom02">
+                      <option value="" selected>-</option>
+                      <option v-for="time in time_list" v-bind:value="time">{{time}}</option>
+                    </select>
+                    <!-- <input type="text" class="form-control" id="validationCustom02" value="" required> -->
+                    <div class="invalid-feedback">
+                      開始時間を入力してください。
+                    </div>
+                  </div>
+                  <div class="col">
+                    <label for="validationCustom03" class="form-label">終了時間</label>
+                    <select class="form-select" name="end_time" id="validationCustom03">
+                      <option value="" selected>-</option>
+                      <div v-for="time in time_list">
+                      </div>
+                      <option v-for="time in time_list" v-bind:value="time">{{time}}</option>
+                    </select>
+                  </div>
+                  <div class="col-12">
+                    参加者
+                    <div class="form-check">
+                      <div v-for="user in user_list">
+                        <div v-if="user.userid === member_calendar_selected_userid">
+                          <input type="checkbox" name="registration_userid" v-bind:id="'registration_userid'+user.userid" v-bind:value="user.userid" checked>
+                          <label v-bind:for="'registration_userid'+user.userid">{{user.userid}}{{user.username}}</label>
+                        </div>
+                        <div v-else>
+                          <input type="checkbox" name="registration_userid" v-bind:id="'registration_userid'+user.userid" v-bind:value="user.userid">
+                          <label v-bind:for="'registration_userid'+user.userid">{{user.userid}}{{user.username}}</label>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">キャンセル</button>
+                    <button type="button" class="btn btn-primary" onclick="console.log('submit');db_insert(document.getElementById('insertPanelForm').dataset.yyyymmdd,document.getElementById('validationCustom01').value,document.getElementById('validationCustom02').value,document.getElementById('validationCustom03').value,checkboxesValue(document.getElementsByName( 'registration_userid')));" data-dismiss="modal">予定登録</button>
+                  </div>
+                </form>
+              </div>
+
+            </div>
+          </div>
+        </div>
+        <!-- modal end-->
+
+        <!-- modal detailpanel start-->
+        <div class="modal fade" id="detailPanel" tabindex="-1" aria-labelledby="detailPanelLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="detailPanelLabel">予定詳細</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <form class="row g-3 needs-validation" id="detailPanelForm" onsubmit="return false">
+                  <div class="col-12">
+                    <label for="detailPanelTitle" class="form-label">件名</label>
+                    <input type="text" class="form-control" id="detailPanelTitle" name="title" value="" required>
+                    <div class="invalid-feedback">
+                      件名を入力してください。
+                    </div>
+                  </div>
+                  <div class="col">
+                    <label for="detailPanelstart_time" class="form-label">開始時間</label>
+                    <select class="form-select" name="start_time" id="detailPanelstart_time">
+                      <!-- <option value="" selected>-</option>
+                      <option v-for="time in time_list" v-bind:value="time">{{time}}</option> -->
+                    </select>
+                    <!-- <input type="text" class="form-control" id="detailPanelstart_time" value="" required> -->
+                    <div class="invalid-feedback">
+                      開始時間を入力してください。
+                    </div>
+                  </div>
+                  <div class="col">
+                    <label for="detailPanelend_time" class="form-label">終了時間</label>
+                    <select class="form-select" name="end_time" id="detailPanelend_time">
+                      <option value="" selected>-</option>
+                      <div v-for="time in time_list">
+                      </div>
+                      <option v-for="time in time_list" v-bind:value="time">{{time}}</option>
+                    </select>
+                  </div>
+                  <div class="col-12">
+                    参加者
+                    <div class="form-check" id="detailPanelcheckbox">
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <button id="detailPanelDelete"  type="button" class="btn btn-danger" onclick="db_delete(this.dataset.delete_id)" data-dismiss="modal">予定を削除</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">キャンセル</button>
+                    <button id="detailPanelSubmit" type="button" class="btn btn-primary" onclick="console.log('update');db_update(this.dataset.update_id,this.dataset.yyyymmdd,document.getElementById('detailPanelTitle').value,document.getElementById('detailPanelstart_time').value,document.getElementById('detailPanelend_time').value,checkboxesValue(document.getElementsByName( 'datail_registration_userid')));" data-dismiss="modal">予定登録</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div id="footer" style="flex:0 0 auto;" class="">
+        {{ selected_username}} {{selected_userid }}
+        <div class="d-flex justify-content-between">
+          <div>
+            <div class="collapse" id="user_select">
+              <div v-for="user in user_list" v-on:click="selected_userid = user.userid;selected_username = user.username;">
+                {{ user.username }}
+              </div>
+            </div>
+            <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#user_select" aria-expanded="false" aria-controls="user_select">
+              個人予定
+            </button>
+
+
+          </div>
+          <div>
+            <button class="btn btn-primary" type="button" onclick="document.getElementById('calendar').style.display='none';document.getElementById('member_calendar').style.display='block'">
+            全体予定
+            </button>
+          </div>
+          <div>
+            <button class="btn btn-primary" type="button" onclick="document.getElementById('member_calendar').style.display='none';document.getElementById('calendar').style.display='block'">
+              個人予定
+              </button>
+          </div>
+          <div>ログアウト</div>
+        </div>
+      </div>
+      <!-- <div>{{ message }}</div>
+      <ol>
+        <li v-for="message in message">
+          {{ message }}
+        </li>
+      </ol> -->
+    </div>
+
+  </div>
+    
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/js/bootstrap.min.js" integrity="sha384-oesi62hOLfzrys4LxRF63OJCXdXDipiYWBnvTl9Y9/TRlw5xlKIEHpNyvvDShgf/" crossorigin="anonymous"></script>
+  <script>
+    let db_data =[];
+    for (let i = 1; i < 100; i++) {
+      db_data.push({"id":i,"userid": ["1"],"date": (new Date("2020","9",1+i)).getFullYear()+"-"+((new Date("2020","9",1+i)).getMonth()+1)+"-"+(new Date("2020","9",1+i)).getDate(),"start_time": "09:00:00","end_time": "18:00:00","title":"出勤"});
+    } 
+    for (let i = 1; i < 100; i++) {
+      db_data.push({"id":i,"userid": ["2"],"date": (new Date("2020","9",1+i)).getFullYear()+"-"+((new Date("2020","9",1+i)).getMonth()+1)+"-"+(new Date("2020","9",1+i)).getDate(),"start_time": "10:00:00","end_time": "18:00:00","title":"出勤"});
+    } 
+    
+    let user_list=[];
+    user_list.push({"userid": "1","username": "なぎささん"});
+    user_list.push({"userid": "2","username": "ゆうきさん"});
+    user_list.push({"userid": "3","username": "ちなつさん"});
+    user_list.push({"userid": "4","username": "ゆかさん"});
+    user_list.push({"userid": "5","username": "りこさん"});
+
+    var app = new Vue({
+      el: '#app',
+      data: {
+        message: db_data,
+        todos: [
+          { text: 'Learn JavaScript' },
+          { text: 'Learn Vue' },
+          { text: 'Build something awesome' }
+        ],
+        login_userid: "1",
+        selected_userid: "1",
+        selected_username:
+        user_list.filter(x => x.userid === "1")[0].username,
+        member_calendar_selected_userid: "1",
+        selected_date:new Date().getFullYear()+"-"+(new Date().getMonth()+1)+"-"+new Date().getDate(),
+        selected_yyyymm: new Date(),
+        week_order: ["日","月","火","水","木","金","土",],
+        day_list: [],
+        todo_list: db_data,
+        user_list: user_list,
+        time_list:["05:00","05:30","06:00","06:30","07:00","07:30","08:00","08:30","09:00","09:30","10:00","10:30","11:00","11:30","12:00","12:30","13:00","13:30","14:00","14:30","15:00","15:30","16:00","16:30","17:00","17:30","18:00","18:30","19:00","19:30","20:00","20:30","21:00","21:30","22:00","22:30","23:00","23:30","00:00"]
+      }
+    })
+
+  function yyyymmddToMonthDayList(yyyymmdd=new Date()) {
+    let return_day_list = [];
+    let date = new Date(yyyymmdd);
+    let date_end = new Date(yyyymmdd);
+    date_end.setDate(1);
+    date_end.setMonth(date.getMonth() + 1);
+    date_end.setDate(0);
+    for (let i = 1; i < 32; i++) {
+    date.setDate(i);
+      if (date.getTime() === date_end.getTime()) {
+        return_day_list.push(new Date(date));
+        i = 32;
+      }else{
+        return_day_list.push(new Date(date));
+      }
+    }
+    console.log("function yyyymmddToMonthDayList:",return_day_list);
+    return return_day_list;
+  }
+
+
+  function yyyymmddToWeekFix
+  (yyyymmdd=new Date(),day_of_week_first="sun") {
+    let day_list = yyyymmddToMonthDayList(yyyymmdd);
+    let unshift_list = [];
+    let this_month_first_day_of_week = day_list[0].getDay();
+    let last_week_day;
+    if (day_of_week_first === "sun") {
+      this_month_first_day_of_week += 1;
+      last_week_day = 6;
+    }else if(day_of_week_first === "mon"){
+      last_week_day = 0;
+    }
+    for (let i = 1; i < this_month_first_day_of_week; i++) {
+      unshift_list.push(new Date(day_list[0].getFullYear() , day_list[0].getMonth(),day_list[0].getDate() - i));
+
+    }
+    unshift_list.forEach(unshift => {
+      day_list.unshift(unshift);
+    });
+    for (let i = 1; i < 7; i++) {
+      if (day_list[day_list.length-1].getDay() === last_week_day) {
+        i = 7;
+      }else{
+        day_list.push(new Date(day_list[day_list.length-1].getFullYear() , day_list[day_list.length-1].getMonth(),day_list[day_list.length-1].getDate() + 1));
+      }
+    }
+    console.log("function yyyymmddToCalendarCellForUser:",day_list);
+    return day_list;
+  }
+
+  function makeCalendarCell(yyyymmdd=new Date(),day_of_week_first="sun") {
+    app.selected_yyyymm = yyyymmdd;
+    app.day_list = [];
+    const day_list =yyyymmddToWeekFix(yyyymmdd,day_of_week_first);
+    day_list.forEach(day => {
+      app.day_list.push(day);
+    });
+  }
+
+  //CRUD
+  function db_insert(date,title,start_time,end_time,users_id) {
+    console.log(date,title,start_time,end_time,users_id);
+    console.log("now length",app.todo_list.length);
+    app.todo_list.push({"id":app.todo_list[app.todo_list.length-1].id+1,"userid": users_id,"date": date,"start_time": start_time,"end_time": end_time,"title":title});
+  }
+
+  function detailPanel(dbdataId) {
+    console.log(dbdataId);
+    console.log(app.todo_list.find(obj => obj.id == dbdataId));
+    const todo = app.todo_list.find(obj => obj.id == dbdataId);
+    let detailPanel = new bootstrap.Modal(document.getElementById('detailPanel'));
+    document.getElementById('detailPanelLabel').innerHTML = todo.date+"の予定";
+    document.getElementById('detailPanelTitle').value = todo.title;
+    document.getElementById('detailPanelstart_time').value = todo.start_time;
+    let start_time_option_html = "";
+    app.time_list.forEach(time => {
+      if (time ==  todo.start_time.slice(0,5)) {
+        start_time_option_html += '<option value="'+time+'" selected>'+time+'</option>'
+      } else {
+        start_time_option_html += '<option value="'+time+'" >'+time+'</option>'
+      }
+    });
+    document.getElementById('detailPanelstart_time').innerHTML = start_time_option_html;
+    document.getElementById('detailPanelend_time').value = todo.end_time;
+    let end_time_option_html = "";
+    app.time_list.forEach(time => {
+      if (time ==  todo.end_time.slice(0,5)) {
+        end_time_option_html += '<option value="'+time+'" selected>'+time+'</option>'
+      } else {
+        end_time_option_html += '<option value="'+time+'" >'+time+'</option>'
+      }
+    });
+    document.getElementById('detailPanelend_time').innerHTML = end_time_option_html;
+    console.log(todo.userid);
+    let checkbox_html = "";
+    app.user_list.forEach(user =>{
+      if (todo.userid.some(join_memberid => join_memberid == user.userid)) {
+        checkbox_html += '<div><input type="checkbox" name="datail_registration_userid" id="datail_registration_userid'+user.userid+'" value="'+user.userid+'" checked><label for="datail_registration_userid'+user.userid+'">'+user.userid+user_list.filter(x => x.userid == user.userid)[0].username+'</label></div>';
+      }else{
+        checkbox_html += '<div><input type="checkbox" name="datail_registration_userid" id="datail_registration_userid'+user.userid+'" value="'+user.userid+'"><label for="datail_registration_userid'+user.userid+'">'+user.userid+user_list.filter(x => x.userid == user.userid)[0].username+'</label></div>';
+      }
+    });
+    document.getElementById('detailPanelcheckbox').innerHTML = checkbox_html;
+    document.getElementById('detailPanelSubmit').dataset.update_id = dbdataId;
+    document.getElementById('detailPanelSubmit').dataset.yyyymmdd = todo.date;
+    document.getElementById('detailPanelDelete').dataset.delete_id = dbdataId;
+    detailPanel.show();
+  }
+
+  function db_update(id,date,title,start_time,end_time,users_id) {
+    console.log(id,date,title,start_time,end_time,users_id);
+    let update_todo = app.todo_list.filter(x => x.id == id)[0];
+    update_todo.userid = users_id;
+    update_todo.date = date;
+    update_todo.start_time = start_time;
+    update_todo.end_time = end_time;
+    update_todo.title = title;
+  }
+
+  function db_delete(id) {
+    console.log(id);
+    let delete_todo = app.todo_list.filter(x => x.id == id)[0];
+    delete_todo.userid = [];
+    delete_todo.date = "";
+    delete_todo.start_time = "";
+    delete_todo.end_time = "";
+    delete_todo.title = "";
+  }
+
+  function dbCreatePanel() {
+    console.log();
+  }
+
+  function dbUpdatePanel(dbdataId) {
+    console.log(dbdataId);
+  }
+
+  function dbDeletePanel(dbdataId) {
+    console.log(dbdataId);
+  }
+
+  function checkboxesValue(domlist){
+    let res =[];
+    domlist.forEach(dom => {
+      if (dom.checked) {
+        res.push(dom.value);
+      }
+    });
+    return res;
+  }
+
+  var myModal = new bootstrap.Modal(document.getElementById('insertPanel'));
+  //modal
+  var insertPanel = document.getElementById('insertPanel')
+  insertPanel.addEventListener('show.bs.modal', function (event) {
+    // Button that triggered the modal
+    var button = event.relatedTarget
+    // Extract info from data-* attributes
+    var recipient = button.getAttribute('data-whatever')
+    // If necessary, you could initiate an AJAX request here
+    // and then do the updating in a callback.
+    //
+    // Update the modal's content.
+    var modalTitle = insertPanel.querySelector('.modal-title')
+    var modalBodyInput = insertPanel.querySelector('.modal-body form')
+    modalBodyInput.dataset.yyyymmdd = recipient
+    modalTitle.textContent = recipient + "の予定を登録"
+  });
+
+  //main
+  makeCalendarCell();
+  </script>
+</body>
+</html>

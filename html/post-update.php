@@ -42,13 +42,15 @@
     $date = preg_replace("/[^0-9\-]/","",$_POST['date']);
     $start_time = timeConvert($_POST['start_time']);
     $end_time = timeConvert($_POST['end_time']);
+    $title = $_POST['title'];
 
-    $stmt = $dbh->prepare("UPDATE work_time SET date = :date, start_time = :start_time, end_time = :end_time WHERE id = :id");
+    $stmt = $dbh->prepare("UPDATE work_time SET date = :date, start_time = :start_time, end_time = :end_time, title = :title WHERE id = :id");
 
     $stmt->bindValue(':id', $update_id, PDO::PARAM_INT);
     $stmt->bindValue(':date', $date);
     $stmt->bindValue(':start_time', $start_time);
     $stmt->bindValue(':end_time', $end_time);
+    $stmt->bindParam(':title', $title);
 
     $stmt->execute();
     //$restxt = '{"state":OK, "userid":"' . $userid . '", "date":"' . $date . '", "start_time":"' . $start_time . '", "end_time":"' . $end_time . '"}';
@@ -58,7 +60,8 @@
       "userid"=>$userid,
       "date"=>$date,
       "start_time"=>$start_time,
-      "end_time"=>$end_time
+      "end_time"=>$end_time,
+      "title"=>htmlspecialchars($title)
     ];
     echo json_encode($restxt,JSON_UNESCAPED_UNICODE);
 
