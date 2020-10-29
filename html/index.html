@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
   <title>Document</title>
   <style>
     [v-cloak] {
@@ -10,6 +10,9 @@
     }
     .hidden-scroll::-webkit-scrollbar {
       display: none;
+    }
+    *{
+      touch-action: manipulation;
     }
   </style>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/css/bootstrap.min.css" integrity="sha384-r4NyP46KrjDleawBgD5tp8Y7UzmLA05oM1iAEQ17CSuDqnUK2+k9luXQOfXJCJ4I" crossorigin="anonymous">
@@ -36,9 +39,9 @@
               {{ week }}
             </div>
           </div>
-          <div class="text-center" style="font-size:10px;width:14%;" v-for="day in day_list" v-bind:data-yyyymmdd="day.getFullYear()+','+(day.getMonth()+1)+','+day.getDate()" v-bind:data-userid="selected_userid" onclick="app.selected_date = this.dataset.yyyymmdd;app.member_calendar_selected_userid = this.dataset.userid;">
+          <div class="text-center" style="font-size:10px;width:14%;" v-for="day in day_list" v-bind:data-yyyymmdd="day.getFullYear()+','+('0'+(day.getMonth()+1)).slice(-2)+','+('0'+day.getDate()).slice(-2)" v-bind:data-userid="selected_userid" onclick="app.selected_date = this.dataset.yyyymmdd;app.member_calendar_selected_userid = this.dataset.userid;">
             <div class="border-top border-left border-right py-1">
-              {{ day.getMonth()+1 }}/{{ day.getDate() }}
+              {{ ('0'+(day.getMonth()+1)).slice(-2) }}/{{ ('0'+(day.getDate())).slice(-2) }}
             </div>
             <div class="hidden-scroll border-bottom border-left border-right" style="height:38px;overflow-y: scroll;">
               <div v-for="todo in todo_list">
@@ -69,7 +72,7 @@
           </div> -->
           <div class="d-flex">
             <div class="border" style="font-size:10px;flex: 0 0 48px;"></div>
-            <div v-for="day in day_list" v-bind:data-yyyymmdd="day.getFullYear()+','+(day.getMonth()+1)+','+day.getDate()" class="border text-center" style="font-size:10px;flex: 0 0 48px;">{{ day.getMonth()+1 }}/{{ day.getDate() }}({{week_order[day.getDay()]}})</div>
+            <div v-for="day in day_list" v-bind:data-yyyymmdd="day.getFullYear()+','+('0'+(day.getMonth()+1)).slice(-2)+','+('0'+day.getDate()).slice(-2)" class="border text-center" style="font-size:10px;flex: 0 0 48px;">{{ ('0'+(day.getMonth()+1)).slice(-2) }}/{{ ('0'+(day.getDate())).slice(-2) }}({{week_order[day.getDay()]}}</div>
           </div>
           <div v-for="user in user_list" class="d-flex justify-content-start">
             <div class="border text-center d-flex flex-column justify-content-center" style="font-size:10px;flex: 0 0 48px;">
@@ -374,10 +377,10 @@
   <script>
     let db_data =[];
     for (let i = 1; i < 100; i++) {
-      db_data.push({"id":i,"userid": ["1"],"date": (new Date("2020","9",1+i)).getFullYear()+"-"+((new Date("2020","9",1+i)).getMonth()+1)+"-"+(new Date("2020","9",1+i)).getDate(),"start_time": "09:00:00","end_time": "18:00:00","title":"出勤"});
+      db_data.push({"id":i,"userid": ["1"],"date": (new Date("2020","9",1+i)).getFullYear()+"/"+((new Date("2020","9",1+i)).getMonth()+1)+"/"+("0"+(new Date("2020","9",1+i)).getDate()).slice(-2),"start_time": "09:00:00","end_time": "18:00:00","title":"出勤"});
     } 
     for (let i = 1; i < 100; i++) {
-      db_data.push({"id":i,"userid": ["2"],"date": (new Date("2020","9",1+i)).getFullYear()+"-"+((new Date("2020","9",1+i)).getMonth()+1)+"-"+(new Date("2020","9",1+i)).getDate(),"start_time": "10:00:00","end_time": "18:00:00","title":"出勤"});
+      db_data.push({"id":i,"userid": ["2"],"date": (new Date("2020","9",1+i)).getFullYear()+"/"+((new Date("2020","9",1+i)).getMonth()+1)+"/"+(new Date("2020","9",1+i)).getDate(),"start_time": "10:00:00","end_time": "18:00:00","title":"出勤"});
     } 
     
     let user_list=[];
@@ -395,7 +398,7 @@
         selected_username:
         user_list.filter(x => x.userid === "1")[0].username,
         member_calendar_selected_userid: "1",
-        selected_date:new Date().getFullYear()+"-"+(new Date().getMonth()+1)+"-"+new Date().getDate(),
+        selected_date:new Date().getFullYear()+"/"+("0"+(new Date().getMonth()+1)).slice(-2)+"/"+("0"+new Date().getDate()).slice(-2),
         selected_yyyymm: new Date(),
         week_order: ["日","月","火","水","木","金","土",],
         day_list: [],
@@ -510,7 +513,7 @@
         if (date.getDay() == week_num) {
           console.log(date.getDay(),"=",week_num);
           console.log();
-          res_array.push(date.getFullYear()+"-"+(date.getMonth()+1)+"-"+date.getDate());
+          res_array.push(date.getFullYear()+"/"+("0"+(date.getMonth()+1)).slice(-2)+"/"+("0"+date.getDate()).slice(-2));
         }
       }
     }
