@@ -1,0 +1,1 @@
+scp -i "jfm.pem" -r html/ ec2-user@ec2-54-199-20-201.ap-northeast-1.compute.amazonaws.com:/home/ec2-user/schedule_app/html

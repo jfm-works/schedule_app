@@ -99,7 +99,7 @@
       <div id="panel" class="hidden-scroll container" style="flex:1 1 auto; overflow-y: scroll;">
         <div id="main_panel">
           <div>
-            {{selected_date.replace(/,/g, '-')}}({{week_order[new Date(selected_date)).getDay()]}}) {{user_list.filter(x => x.userid === member_calendar_selected_userid)[0].username}}の予定
+            {{selected_date.replace(/,/g, '-')}}({{week_order[new Date(selected_date.replace(/,/g, '-')).getDay()]}}) {{user_list.filter(x => x.userid === member_calendar_selected_userid)[0].username}}の予定
           </div>
           <div v-for="todo in todo_list">
             <div v-if="todo.userid.find(e => e === member_calendar_selected_userid) === member_calendar_selected_userid && todo.date === selected_date.replace(/,/g, '-')" class="my-2 border-bottom d-flex">
